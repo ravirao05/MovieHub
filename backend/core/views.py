@@ -10,50 +10,46 @@ from .serializers import MovieSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView
 
-class DashboardView(ListAPIView):
-    queryset = Movie.objects.all()
-    serializer_class = MovieSerializer
+from rest_framework.filters import SearchFilter, OrderingFilter
+from django_filters.rest_framework import NumberFilter, DjangoFilterBackend
 
 class FilterView(APIView):
-    def get_filter_arguments(filter):
-        elements = Movie.objects.values_list(filter, flat=True).distinct()
-        filters = []
+
+    def get(self, request, *args, **kwargs):
+        elements = Movie.objects.values_list('genre', flat=True).distinct()
+        genres = []
         for element in elements:
             for filter in element[:-1].split(','):
-                filters.append(filter)
-        return list(set(filters))
+                genres.append(filter)
+        genres = list(set(genres))
+        languages = Movie.objects.values_list('language', flat=True).distinct()
+        return Response({'genres': genres, 'languages': languages}, status=status.HTTP_200_OK)
 
-    def get(self, request, *args, **kwargs):
-            genres = self.get_filter_arguments('genre')
-            languages = self.get_filter_arguments('language')
-            return Response({'genres': genres}, status=status.HTTP_200_OK)
-
-class SearchView(APIView):
-    def get(self, request, *args, **kwargs):
-        q = request.GET.get('q')
-        genres = request.GET.getlist('genre')
-        language = request.GET.get('language')
-        rating = request.GET.get('rating')
-        year = request.GET.get('year')
-        query = Q()
-        if q:
-            query = query & (Q(name__contains = q) | Q(tags__contains = q))
-        if (genres):
-            for genre in genres:
-                query = query & (Q(genre__contains = genre))
-        if (language):
-            query = query & (Q(language__contains = language))
-        movies = Movie.objects.filter(query)
-        paginator = PageNumberPagination()
-        page = paginator.paginate_queryset(movies, request)
-        serializer = MovieSerializer(page, many=True)
-
-        return paginator.get_paginated_response(serializer.data)
+class SearchView(ListAPIView):
+    queryset = Movie.objects.all()
+    serializer_class = MovieSerializer
+    filter_backends = [SearchFilter, OrderingFilter, DjangoFilterBackend]
+    filterset_fields = {
+        'rating': ['gte'],
+        'genre': ['exact'],
+        'language': ['exact'],
+    }
+    search_fields = ['name', 'language']
+    ordering_fields = ['rating', 'name']
+    ordering = ['-rating', '-release_date']
+    # filter_class = NumberFilter
+    # def get_queryset(self):Add commentMore actions
+    #     queryset = super().get_queryset()
+    #     rating = self.request.query_params.get('rating', None)
+    #     if rating:
+    #         queryset = queryset.filter(rating__gte=rating)
+    #     return queryset
 class MovieView(RetrieveAPIView):
     serializer_class = MovieSerializer
 
     def get_object(self):
-        movie_id = self.request.GET.get('id')
+        if 'id' in self.kwargs:
+            movie_id = self.kwargs['id']
         try:
             return Movie.objects.get(pk=movie_id)
         except Movie.DoesNotExist:
