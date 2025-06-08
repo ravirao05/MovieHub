@@ -52,27 +52,65 @@ function Movie() {
     // }, [fetchData]);
 
     return (
-        <div className="movie-container">
-            <img src={movieData.image.slice(0, -4) + 'QL225_UY621_CR0,0,447,621r.jpg'} alt={movieData.name} className="movie-poster" />
-            <div className="movie-info">
-                <h1>{movieData.name}</h1>
-                {<p className="tagline">{`Released: ${movieData.release_date.slice(0, 3)}`}</p> }
-                <p className="tagline">Rating: {movieData.rating}</p>
-                <p className="tagline">Content Rating: {movieData.content_rating}</p>
-                <p className="tagline">Duration: {movieData.duration.slice(2)}</p>
-                <p className="tagline">Language: {movieData.language}</p>
-                <p className="tagline">Genre: {movieData.genre.slice(0,-1)}</p>
-                <p>{movieData.description}</p>
-                <a href={movieData.trailer} target="_blank" rel="noreferrer">
-                    Watch Trailer
-                </a>
-                <ul className="movie-tags">
-                    {movieData.tags.split(",").map((tag) => (
-                        <li key={tag}>{tag}</li>
-                    ))}
+        <>
+            <div className="movie-container-descriptive">
+                <img src={movieData.image.slice(0, -4) + 'QL168_UY631_CR12,0,427,631_.jpg'} alt={movieData.name} className="movie-poster" />
+                <div className="movie-info">
+                    <div className="movie-header">
+                        <h1>{movieData.name}</h1>
+                        <p className="date">{movieData.release_date}</p>
+                    </div>
+                    <button className="toogle-fav">Add to Fav</button>
+                    <p className="rating">Rating: {movieData.rating}</p>
+                    <p className="content-rating">Content Rating: {movieData.content_rating}</p>
+                    <p className="duration">Duration: {movieData.duration}</p>
+
+
+                    <p class="summary">{movieData.description}</p>
+                    <a href={movieData.trailer} target="_blank" className="trailer" rel="noreferrer">
+                        Watch Trailer
+                    </a>
+                    <p>
+                        <ul className="tabs">
+                            Genre: 
+                            {movieData.genre.slice(0, -1).split(",").map((g) => (
+                                <li key={g}>{g}</li>
+                            ))}
+                        </ul>
+                        <ul className="tabs">
+                            Available in: 
+                            {movieData.language.slice(0, -1).split(",").map((tag) => (
+                                <li key={tag}>{tag}</li>
+                            ))}
+                        </ul>
+                        <ul className="tabs">
+                            Tags: 
+                            {movieData.tags.split(",").map((tag) => (
+                                <li key={tag}>{tag}</li>
+                            ))}
+                        </ul>
+                    </p>
+                </div>
+            </div><div class="review-container">
+                <h2>Add Review</h2>
+                <textarea placeholder="Share your thoughts on this movie..." className="review-textbox"></textarea>
+                <button className="submit-review">Submit Review</button>
+
+                <h2>Reviews</h2>
+                <ul className="reviews-list">
+                    {/* {movieData.reviews.map((review) => (
+    <li key={review.id} className="review">
+        <h3>{review.title}</h3>
+        <p>By {review.username}</p>
+        <p className="rating">Rating: {review.rating}</p>
+        <p className="date">{review.date}</p>
+        <p>{review.content}</p>
+    </li>
+))} */}
+
                 </ul>
             </div>
-        </div>
+        </>
     );
 };
 

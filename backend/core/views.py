@@ -8,13 +8,13 @@ from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from .serializers import MovieSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView, UpdateAPIView
 
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import NumberFilter, DjangoFilterBackend
 
 class FilterView(APIView):
-
+    permission_classes = (IsAuthenticated, )
     def get(self, request, *args, **kwargs):
         elements = Movie.objects.values_list('genre', flat=True).distinct()
         genres = []
@@ -22,29 +22,31 @@ class FilterView(APIView):
             for filter in element[:-1].split(','):
                 genres.append(filter)
         genres = list(set(genres))
-        languages = Movie.objects.values_list('language', flat=True).distinct()
+        elements = Movie.objects.values_list('language', flat=True).distinct()
+        languages = []
+        for element in elements:
+            for filter in element[:-1].split(','):
+                languages.append(filter)
+        languages = list(set(languages))
         return Response({'genres': genres, 'languages': languages}, status=status.HTTP_200_OK)
 
 class SearchView(ListAPIView):
+    permission_classes = (IsAuthenticated, )
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
     filter_backends = [SearchFilter, OrderingFilter, DjangoFilterBackend]
     filterset_fields = {
         'rating': ['gte'],
-        'genre': ['exact'],
-        'language': ['exact'],
+        'genre': ['icontains'],
+        'language': ['icontains'],
+        'release_date': ['icontains'],
     }
     search_fields = ['name', 'language']
     ordering_fields = ['rating', 'name']
     ordering = ['-rating', '-release_date']
-    # filter_class = NumberFilter
-    # def get_queryset(self):Add commentMore actions
-    #     queryset = super().get_queryset()
-    #     rating = self.request.query_params.get('rating', None)
-    #     if rating:
-    #         queryset = queryset.filter(rating__gte=rating)
-    #     return queryset
+
 class MovieView(RetrieveAPIView):
+    # permission_classes = (IsAuthenticated, )
     serializer_class = MovieSerializer
 
     def get_object(self):
@@ -54,3 +56,9 @@ class MovieView(RetrieveAPIView):
             return Movie.objects.get(pk=movie_id)
         except Movie.DoesNotExist:
             return None
+        
+
+class ToogleFav(UpdateAPIView):
+    permission_classes = (IsAuthenticated, )
+
+    pass

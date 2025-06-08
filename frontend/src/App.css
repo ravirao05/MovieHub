@@ -39,186 +39,263 @@
 }
 
 body {
-  margin: 0;
-  padding: 0;
-  font-family: sans-serif;
+  background-color: #242729;
+  color: #fff;
+  padding: 1em;
 }
 
-.dashboard {
+.search-bar {
+  background-color: #303335;
+  border-radius: 4px;
+  padding: 0.5em;
   display: flex;
-  flex-direction: column;
-  width: 80%;
-  margin: 0 auto;
-  padding: 20px;
+  align-items: center;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.search-bar:hover {
+  background-color: #2b2e30;
+}
+
+.search-bar input {
+  background-color: transparent;
+  border: none;
+  outline: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  padding: 0 1em;
 }
 
 .filters {
   display: flex;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #ddd;
+  flex-wrap: wrap;
+  padding: 0.5em 0;
 }
 
 .filter-item {
-  margin: 0 10px;
-  flex: 1;
-}
-
-.search-bar {
+  margin: 0.5em;
+  width: 200px;
   display: flex;
-  margin-bottom:5px;
-  width: 100%;
+  align-items: center;
+  transition: transform 0.2s ease-in-out;
 }
 
-.search-bar input {
-  flex: 1;
-  padding: 5px;
-  border-radius: 3px;
-  border: 1px solid #ddd;
-  font-size: 16px;
+.filter-item:hover {
+  transform: translateY(-2px);
 }
 
-select {
-  /* width: auto; */
-  padding: 5px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 16px;
+.filter-item label {
+  margin-right: 0.5em;
+  color: #eee;
 }
 
+.filter-item select {
+  background-color: #303335;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  padding: 0.25em 0.5em;
+  transition: box-shadow 0.2s ease-in-out;
+}
 
-input[type="date"] {
-  padding: 5px;
-  border-radius: 3px;
-  border: 1px solid #ddd;
-  font-size: 16px;
-  width: 100%;
+.filter-item select:focus {
+  box-shadow: 0 0 3px 2px #fcd938;
 }
 
 .movies-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1em;
 }
 
 .movie-item {
-  width: 30%;
-  color: #444;
-  background-color: #f5f5f5;
-  border-radius: 5px;
-  padding: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  background-color: #2b2e30;
+  border-radius: 4px;
+  overflow: hidden;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.movie-item:hover {
+  background-color: #242729;
+}
+
+.movie-item a {
+  text-decoration: none;
+  color: inherit;
 }
 
 .movie-item img {
   width: 100%;
-  border-radius: 5px;
+  height: auto;
+  object-fit: cover;
+  transition: transform 0.2s ease-in-out;
 }
 
-.movie-info h3 {
-  margin: 5px 0;
-  font-size: 18px;
-}
-
-.movie-info p {
-  margin: 5px 0;
-  font-size: 14px;
-}
-
-.movie-info span {
-  display: block;
-  font-size: 12px;
-  margin: 3px 0;
-}
-
-.rating {
-  color: #ff0000;
-}
-
-.footer {
-  text-align: center;
-  margin-top: 20px;
-}
-
-.movie-container {
-  display: flex;
-  margin: 20px auto;
-  width: 80%;
-  max-width: 1200px;
-}
-
-.movie-poster {
-  width: auto;
-  border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+.movie-item:hover img {
+  transform: scale(1.05);
 }
 
 .movie-info {
-  width: auto;
-  padding: 20px;
-  background-color: #f5f5f5;
-  border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  padding: 0.5em;
+  transition: opacity 0.2s ease-in-out;
 }
 
-h1 {
-  font-size: 2em;
-  margin-bottom: 10px;
+.movie-item:hover .movie-info {
+  opacity: 0.8;
 }
 
-.tagline {
-  font-size: 1.2em;
-  margin-bottom: 5px;
-  color: #444;
+.movie-info h3 {
+  margin-bottom: 0.25em;
+  font-size: 1.25em;
+  font-weight: bold;
+}
+.movie-info p {
+  margin-bottom: 0.5em;
+  font-size: 0.9em;
+  line-height: 1.25;
 }
 
-p {
-  margin-bottom: 15px;
+.movie-info span {
+  font-size: 0.85em;
+  margin-right: 0.5em;
 }
 
-a {
-  color: #007bff;
+
+.movie-container-descriptive {
+  background-color: #2b2e30;
+  border-radius: 4px;
+  overflow: hidden;
+  padding: 1em;
+  margin: 1em 0;
+  display: flex;
+}
+
+.movie-poster {
+  height: auto;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-right: 1em;
+}
+
+.movie-info {
+ flex: 1;
+}
+
+.toogle-fav {
+  display: inline-block;
+  padding: 0.5em 1em;
+  border: 1px solid #fcd938;
+  border-radius: 4px;
+  background-color: #303335;
+  color: #fcd938;
+  font-weight: bold;
   text-decoration: none;
+  cursor: pointer;
+}
+
+.movie-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5em;
+}
+
+.movie-header h1 {
+  font-size: 1.5em;
+  margin-bottom: 0;
+}
+
+.date {
+  color: #aaa;
+  font-size: 0.9em;
+}
+
+.rating {
+  color: #fcd938;
   font-weight: bold;
 }
 
-.movie-tags {
+.content-rating,
+.duration {
+  color: #aaa;
+}
+
+.summary {
+  margin-top: 1em;
+  line-height: 1.5;
+}
+
+.trailer {
+  display: inline-block;
+  padding: 0.5em 1em;
+  border-radius: 4px;
+  background-color: #242729;
+  color: #fff;
+  margin-top: 1em;
+}
+
+.tabs {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
-.movie-tags li {
+.tabs li {
   display: inline-block;
-  margin: 5px;
-  padding: 5px 10px;
-  background-color: #eee;
-  border-radius: 3px;
+  margin-right: 0.5em;
+  font-size: 0.9em;
+  color: #aaa;
 }
 
-
-select {
-  width: auto;
-  padding: 5px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 16px;
+.review-container {
+  background-color: #2b2e30;
+  border-radius: 4px;
+  padding: 1em;
+  margin: 1em 0;
 }
 
-select:focus {
-  outline: none;
-  border: 1px solid #007bff;
+.review-container h2 {
+  font-size: 1.5em;
+  margin-bottom: 0.5em;
 }
 
-select option {
-  padding: 5px;
-  color: #333;
+.review-textbox {
+  width: 100%;
+  padding: 0.5em;
+  border-radius: 4px;
+  border: 1px solid #303335;
+  font-size: 1em;
+  resize: none;
 }
 
-select option:hover {
-  background-color: #eee;
-}
-
-select option:selected {
-  background-color: #007bff;
+.submit-review {
+  display: inline-block;
+  padding: 0.5em 1em;
+  border-radius: 4px;
+  background-color: #242729;
   color: #fff;
+  margin-top: 1em;
+  cursor: pointer;
+}
+
+.reviews-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.review {
+  border-bottom: 1px solid #303335;
+  padding: 0.5em 0;
+}
+
+.review h3 {
+  font-size: 1em;
+  margin-bottom: 0.25em;
+}
+
+.review p {
+  font-size: 0.9em;
+  line-height: 1.5;
 }

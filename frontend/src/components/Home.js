@@ -7,6 +7,7 @@ function Home() {
     const [query, setQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const years = Array.from({ length: 100 }, (_, index) => 2024 - index);
+    const [noMoreMovie, setNoMoreMovie] = useState(false);
     const [filterArgs, setFilterArgs] = useState({
         genres: [],
         languages: []
@@ -14,12 +15,12 @@ function Home() {
     const [filters, setFilters] = useState({
         genre: '',
         rating: '',
-        release_date: '',
+        year: '',
         language: ''
     });
     const loaderRef = useRef(null);
     const fetchData = useCallback(async () => {
-        if (isLoading) return;
+        if (isLoading || noMoreMovie) return;
 
         setIsLoading(true);
         try {
@@ -27,29 +28,34 @@ function Home() {
                 'params': {
                     'page': currentPage,
                     'search': query,
-                    'rating': filters.rating,
-                    'language': filters.language,
-                    'year': filters.year,
+                    'rating__gte': filters.rating,
+                    'genre__icontains': filters.genre,
+                    'language__icontains': filters.language,
+                    'release_date__icontains': filters.year,
                 }
             });
             setMovies((prevMovies) => [...prevMovies, ...data['results']]);
             setCurrentPage((prevPage) => prevPage + 1);
-            setIsLoading(false);
+
         } catch (error) {
-            if (error.response.status !== 404) {
-                console.log(error)
+            if (error.response.status === 404) {
+                setNoMoreMovie(true);
+            } else {
+                console.log(error);
             }
         }
+        setIsLoading(false);
     }, [currentPage, isLoading]);
 
-    const getData = async () => {
+    const search = async () => {
         setIsLoading(true);
         const { data } = await axios.get('http://localhost:8000/api/', {
             'params': {
                 'search': query,
-                'rating': filters.rating,
-                'language': filters.language,
-                'year': filters.year,
+                'rating__gte': filters.rating,
+                'genre__icontains': filters.genre,
+                'language__icontains': filters.language,
+                'release_date__icontains': filters.year,
 
             }
         });
@@ -58,35 +64,12 @@ function Home() {
     };
 
     useEffect(() => {
-        (async () => {
-            console.log(filters);
-
-            setIsLoading(true);
-            const { data } = await axios.get('http://localhost:8000/api/', {
-                'params': {
-                    'search': query,
-                    'rating': filters.rating,
-                    'genre': filters.genre,
-                    'language': filters.language,
-                    'year': filters.year,
-
-                }
-            });
-            setMovies(data['results']);
-            console.log(movies)
-            setIsLoading(false);
-        })();
-    }, [filters]);
-
-    useEffect(() => {
-        // fetching initial movie list
-        (async () => {
-            setIsLoading(true);
-            const { data } = await axios.get('http://localhost:8000/api/');
-            setMovies(data['results']);
-            setIsLoading(false);
-        })();
-    }, []);
+         if (query) {
+            setTimeout(() => search(), 500);
+        } else {
+            search();
+        }
+    }, [filters, query]);
 
     useEffect(() => {
         // getting filter arguments
@@ -121,11 +104,7 @@ function Home() {
         <div className="dashboard">
             <div class="search-bar">
                 <input type="text" placeholder="Search..." value={query}
-                    onChange={(e) => {
-                        setQuery(e.target.value);
-                        setTimeout(() => getData(), 300);
-                        console.log(e.target.value);
-                    }}
+                    onChange={(e) => setQuery(e.target.value)}
                 />
             </div>
             <div className="filters">
@@ -169,8 +148,10 @@ function Home() {
                     <label htmlFor="releaseY">Released in:</label>
                     <select
                         value={filters.releaseY}
-                        onChange={(event) => setFilters({ ...filters, release_year: event.target.value })}
+                        onChange={(event) => setFilters({ ...filters, year: event.target.value })}
                     >
+                        <option value="">All</option>
+
                         {years.map((year) => (
                             <option value={year}>{year}</option>
                         ))}
@@ -181,15 +162,13 @@ function Home() {
                 {movies.map((movie) => (
                     <div class="movie-item" key={movie.id}>
                         <a href={'/movie/' + movie.id}>
-                            <img src={movie.image.slice(0, -3) + 'QL225_UY621_CR0,0,447,621r.jpg'} alt={movie.name} />
+                            <img src={movie.image.slice(0, -3) + 'QL112_UY421_CR12,0,285,421_.jpg'} alt={movie.name} />
                             <div class="movie-info">
                                 <h3>{movie.name}</h3>
-                                <p>{movie.description}</p>
+                                <p>{movie.description.slice(0, 200)}...</p>
                                 <span class='rating'>Rating: {movie.rating}</span>
                                 <span>Release Date: {movie.release_date}</span>
                                 <span>Content Rating: {movie.content_rating}</span>
-                                <span>Duration: {movie.duration.slice(2)}</span>
-                                <span>Language: {movie.language}</span>
                             </div>
                         </a>
                     </div>

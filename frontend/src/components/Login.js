@@ -1,12 +1,67 @@
-import { useEffect, useState } from "react";
+import React, { useState } from 'react';
+import axios from "axios";
 
-function Login() {
-    const client_id = 'BtNQbIxijd97Vnp5Th12pzQoWvXzhRnR62ULWIDx';
-    const client_secret = 'IqaErtocdYNy4p0RBGmrKeNMO6dhbyKgreo2BKbCPCPiZjR7AskUiVKoaUPYRp03vuufwqfHqB6t4WIMh0i20v5yru58iPar6k2rzaLCObtOM1mZZwcgsUI2CP586wNx'
-    const url = "https://channeli.in/oauth/authorise?client_id=" + client_id
+const Login = () => {
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+
+    const submit = async (e) => {
+        e.preventDefault();
+
+        const user = {
+            username: username,
+            password: password,
+        };
+
+        const { data } = await axios.post(
+            "http://localhost:8000/auth/login/",
+            user,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            },
+            { withCredentials: true }
+        );
+
+        localStorage.clear();
+        localStorage.setItem("access_token", data.access);
+        localStorage.setItem("refresh_token", data.refresh);
+        axios.defaults.headers.common["Authorization"] = `Bearer ${data["access"]}`;
+        window.location.href = '/';
+    };
+
     return (
-        < a href={url} > Sign in with google.</a >
+        <div className="login-page">Add commentMore actions
+            <form className="login-form" onSubmit={submit}>
+                <div className="form-group">
+                    <input
+                        type="text"
+                        placeholder="Username or Email"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                    />
+                </div>
+                <div className="form-group">
+                    <input
+                        type="password"
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+                </div>
+                <div className="form-group">
+                    <button type="submit">Login</button>
+                </div>
+                <div className="forgot-password">
+                    <a href="#">Forgot password?</a>
+                </div>
+                <div className="social-login">
+                    {/* Implement social login buttons here */}
+                </div>
+            </form>
+        </div>
     );
-}
+};
 
 export default Login;
