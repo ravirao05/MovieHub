@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import axios from "axios";
-import "./Login.css";
-const Login = () => {
+import "./Signup.css";
+
+
+export default function Signup() {
     const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
+    const [name, setName] = useState('');
     const [password, setPassword] = useState('');
 
     const submit = async (e) => {
@@ -10,11 +14,13 @@ const Login = () => {
 
         const user = {
             username: username,
+            email: email,
+            name: name,
             password: password,
         };
 
         const { data } = await axios.post(
-            "http://localhost:8000/auth/login/",
+            "http://localhost:8000/auth/signup/",
             user,
             {
                 headers: {
@@ -28,21 +34,39 @@ const Login = () => {
         localStorage.setItem("access_token", data.access);
         localStorage.setItem("refresh_token", data.refresh);
         axios.defaults.headers.common["Authorization"] = `Bearer ${data["access"]}`;
-        window.location.href = '/';
+        // window.location.href = '/';
     };
 
+
     return (
-        <div className="login-page">Add commentMore actions
-            <form className="login-form" onSubmit={submit}>
+        <div className="signup-page">
+            <form className="signup-form" onSubmit={submit}>
                 <div className="form-group">
                     <input
                         type="text"
-                        placeholder="Username or Email"
+                        placeholder="Username"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                     />
                 </div>
                 <div className="form-group">
+                    <input
+                        type="email"
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
+                </div>
+                <div className="form-group">
+                    <input
+                        type="text"
+                        placeholder="Full name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                    />
+                </div>
+                <div className="form-group">
+
                     <input
                         type="password"
                         placeholder="Password"
@@ -51,10 +75,11 @@ const Login = () => {
                     />
                 </div>
                 <div className="form-group">
-                    <button type="submit">Login</button>
+
+                    <button type="submit">Signup</button>
                 </div>
-                <div className="forgot-password">
-                    <a href="#">Forgot password?</a>
+                <div className="login">
+                    <a href="#">Login</a>
                 </div>
                 <div className="social-login">
                     {/* Implement social login buttons here */}
@@ -63,5 +88,3 @@ const Login = () => {
         </div>
     );
 };
-
-export default Login;

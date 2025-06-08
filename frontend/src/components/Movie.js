@@ -2,9 +2,10 @@ import { useEffect, useCallback, useRef, useState } from "react";
 import axios from "axios";
 import { useParams } from 'react-router-dom';
 
-function Movie() {
+export default function Movie() {
     const [isLoading, setIsLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
+    const [isFav, setIsFav] = useState(false);
     const { movieId } = useParams();
     const [movieData, setMovieData] = useState({
         name: '',
@@ -19,16 +20,47 @@ function Movie() {
         language: '',
         genre: ""
     });
+
     useEffect(() => {
-        (async () => {
-            const { data } = await axios.get('http://localhost:8000/api/movie/' + movieId + '/');
-            setMovieData(data);
-            // for (var _ in data){
-            //     movieData[_] = data[_];
-            //     console.log(movieData);
-            // }
-        })();
+        // getting filter arguments
+        setTimeout(() => {
+            (async () => {
+                const { data } = await axios.get('http://localhost:8000/api/movie/' + movieId + '/');
+                setMovieData(data);
+            })();
+        }, 2000);
     }, []);
+
+
+    useEffect(() => {
+        // getting filter arguments
+        setTimeout(() => {
+            (async () => {
+                try {
+                    const response = await axios.get('http://localhost:8000/api/favourites/');
+                    if (response) {
+                        if (response.data.fav.includes(movieId)) setIsFav(true);
+                        else setIsFav(false)
+                    }
+                } catch (e) {
+                    console.log(e)
+                }
+            })();
+        }, 3000);
+    }, []);
+    useEffect(() => {
+
+
+    }, []);
+
+    const toogleFav = async () => {
+        const response = await axios.get('http://localhost:8000/api/favourites/', {
+            params: {
+                id: movieId
+            }
+        });
+        setIsFav(response.data.fav);
+    }
 
     // check if user scrolled till end
     // if yes then fetchData()
@@ -60,7 +92,7 @@ function Movie() {
                         <h1>{movieData.name}</h1>
                         <p className="date">{movieData.release_date}</p>
                     </div>
-                    <button className="toogle-fav">Add to Fav</button>
+                    <button className="toogle-fav" onClick={toogleFav}>{isFav ? "Remove from fav" : "Add to fav"}</button>
                     <p className="rating">Rating: {movieData.rating}</p>
                     <p className="content-rating">Content Rating: {movieData.content_rating}</p>
                     <p className="duration">Duration: {movieData.duration}</p>
@@ -72,19 +104,19 @@ function Movie() {
                     </a>
                     <p>
                         <ul className="tabs">
-                            Genre: 
+                            Genre:&nbsp;
                             {movieData.genre.slice(0, -1).split(",").map((g) => (
                                 <li key={g}>{g}</li>
                             ))}
                         </ul>
                         <ul className="tabs">
-                            Available in: 
+                            Available in: &nbsp;
                             {movieData.language.slice(0, -1).split(",").map((tag) => (
-                                <li key={tag}>{tag}</li>
+                                <li key={tag}> {tag}</li>
                             ))}
                         </ul>
                         <ul className="tabs">
-                            Tags: 
+                            Tags:&nbsp;
                             {movieData.tags.split(",").map((tag) => (
                                 <li key={tag}>{tag}</li>
                             ))}
@@ -107,11 +139,9 @@ function Movie() {
         <p>{review.content}</p>
     </li>
 ))} */}
-
                 </ul>
             </div>
         </>
+
     );
 };
-
-export default Movie;
