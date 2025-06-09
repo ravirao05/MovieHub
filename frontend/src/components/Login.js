@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from "axios";
 import "./Login.css";
+
+
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -31,8 +33,9 @@ const Login = () => {
         window.location.href = '/';
     };
 
+
     return (
-        <div className="login-page">Add commentMore actions
+        <div className="login-page">
             <form className="login-form" onSubmit={submit}>
                 <div className="form-group">
                     <input
@@ -55,6 +58,9 @@ const Login = () => {
                 </div>
                 <div className="forgot-password">
                     <a href="#">Forgot password?</a>
+                </div>
+                <div className="signup">
+                    <a href="#">Signup</a>
                 </div>
                 <div className="social-login">
                     {/* Implement social login buttons here */}

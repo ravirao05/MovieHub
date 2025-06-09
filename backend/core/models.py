@@ -4,7 +4,7 @@ class Movie(models.Model):
     id = models.CharField(max_length=16, primary_key=True)
     name = models.CharField(max_length=256)
     image = models.CharField(max_length=512)
-    description = models.CharField(max_length=2048)
+    description = models.TextField()
     rating = models.FloatField()
     platforms = models.CharField(max_length=256)
     release_date = models.CharField(max_length=12)
@@ -17,7 +17,8 @@ class Movie(models.Model):
 
 class Review(models.Model):
     title = models.CharField(max_length=256)
-    body = models.CharField(max_length=2048)
+    body = models.TextField()
     date = models.CharField(max_length=32)
     rating = models.CharField(max_length=8)
+    movie = models.ForeignKey('core.Movie', on_delete=models.CASCADE,null=True)
     user = models.ForeignKey('authenticate.User', on_delete=models.SET_NULL, null=True)

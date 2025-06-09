@@ -62,6 +62,18 @@
     text-decoration: none;
   }
   
+  .signup {
+    text-align: right;
+    margin-top: 1em;
+  }
+  
+  .signup a {
+    color: #fcd938;
+    font-weight: bold;
+    text-decoration: none;
+  }
+  
+
   .social-login {
     text-align: center;
     margin-top: 2em;

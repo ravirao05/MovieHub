@@ -1,7 +1,9 @@
 import { useEffect, useCallback, useRef, useState } from "react";
 import axios from "axios";
+import "./Home.css"
 
 function Home() {
+    const [menuOpen, setMenuOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [movies, setMovies] = useState([]);
     const [query, setQuery] = useState('');
@@ -9,7 +11,8 @@ function Home() {
     const years = Array.from({ length: 100 }, (_, index) => 2024 - index);
     const [noMoreMovie, setNoMoreMovie] = useState(false);
     const [profilePicture, setProfilePicture] = useState('')
-    const [profileHref, setProfileHref] = useState('')
+    const [order, setOrder] = useState('-')
+    const [sort, setSort] = useState('release_date')
     const [filterArgs, setFilterArgs] = useState({
         genres: [],
         languages: []
@@ -22,6 +25,14 @@ function Home() {
     });
     const loaderRef = useRef(null);
 
+
+    const changeOrder = async () => {
+        if (order === '-') {
+            setOrder('');
+        } else {
+            setOrder('-');
+        }
+    };
     const fetchData = useCallback(async () => {
         if (isLoading || noMoreMovie) return;
 
@@ -35,6 +46,7 @@ function Home() {
                     'genre__icontains': filters.genre,
                     'language__icontains': filters.language,
                     'release_date__icontains': filters.year,
+                    'ordering': order + sort,
                 }
             });
             if (data) {
@@ -61,9 +73,11 @@ function Home() {
                 'genre__icontains': filters.genre,
                 'language__icontains': filters.language,
                 'release_date__icontains': filters.year,
+                'ordering': order + sort,
             }
         });
         if (data) setMovies(data['results']);
+        console.log(movies)
         setIsLoading(false);
     };
 
@@ -73,7 +87,7 @@ function Home() {
         } else {
             search();
         }
-    }, [filters, query]);
+    }, [filters, query, sort, order]);
 
     useEffect(() => {
         setTimeout(() => {
@@ -119,15 +133,43 @@ function Home() {
 
     return (
         <div className="dashboard">
-            <span className="profile">
-                <a href={profilePicture ? '/profile' : '/login'}>{profilePicture ? <img src={profilePicture} alt="Profile Image" /> : <button className="profile">Login</button>}</a>
-            </span>
+            <div className="profile">
+                {profilePicture ? (
+                    <img src={profilePicture} alt="Profile Image" onClick={() => setMenuOpen(!menuOpen)} />
+                ) : (
+                    <a href="/login"><button className="profile">Login</button></a>
+                )}
+                {menuOpen && (
+                    <ul className="profile-menu">
+                        <li><a>Account info</a></li>
+                        <li><a>Account info</a></li>
+                        <li><a>Account info</a></li>
+                    </ul>
+                )}
+            </div>
+
             <div className="search-bar">
                 <input type="text" placeholder="Search..." value={query}
                     onChange={(e) => setQuery(e.target.value)}
                 />
             </div>
             <div className="filters">
+                <div className="filter-item">
+                    <label htmlFor="sort">Sort by:</label>
+                    <select id="sort" name="sort" value={sort} onChange={(event) => setSort(event.target.value)}>
+                        <option value="release_date">Release date</option>
+                        <option value="name">Name</option>
+                        <option value="rating">Rating</option>
+                        <option value="duration">Runtime</option>
+                    </select>
+                </div>
+                <div className="filter-item">
+                    <button onClick={changeOrder}>{order === '-' ? "DESC" : "ASC"}</button>
+                </div>
+                <p />
+                <div className="filter-item">
+                    Filters:
+                </div>
                 <div className="filter-item">
                     <label htmlFor="genre">Genre:</label>
                     <select id="genre" name="genre" value={filters.genre} onChange={(event) => setFilters({ ...filters, genre: event.target.value })}>

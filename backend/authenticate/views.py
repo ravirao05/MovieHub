@@ -27,6 +27,7 @@ class SignupAPIView(APIView):
         try:
             serializer = UserSerializer(data=request.data)
             if not serializer.is_valid():
+                print(serializer.errors)
                 return Response({'errors': serializer.errors}, status=status.HTTP_403_FORBIDDEN)
             serializer.save()
             user = authenticate(username=request.data['username'], password = request.data['password'])

@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.base_user import BaseUserManager
 
 def image_directory(instance, filename):
-      return 'user_{0}/avatar.jpg'.format(instance.id) 
+      return f'{instance.username}/avatar.{filename.split(".")[-1]}'
 
 class UserManager(BaseUserManager):
     def create_user(self, username, password=None, **extra_fields):
@@ -29,7 +29,7 @@ class User(AbstractUser):
     first_name = None
     last_name = None
     name = models.CharField(max_length=64)
-    profile = models.ImageField(upload_to=image_directory, default='avatar.jpg', blank=True)
+    profile = models.ImageField(upload_to=image_directory, default='avatar.png', blank=True)
     favourite = models.ManyToManyField('core.Movie', blank=True)
     is_email_verified = models.BooleanField(default=False)
     otp = models.CharField(max_length=6, null=True, blank=True)

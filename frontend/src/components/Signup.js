@@ -8,24 +8,26 @@ export default function Signup() {
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
+    const [profile, setProfile] = useState(null);
 
     const submit = async (e) => {
         e.preventDefault();
 
-        const user = {
-            username: username,
-            email: email,
-            name: name,
-            password: password,
-        };
 
+        let content = new FormData();
+        content.append('name', name);
+        content.append('username', username);
+        content.append('password', password);
+        content.append('email', email);
+        if (profile) content.append('profile', profile);
+        console.log(content)
         const { data } = await axios.post(
             "http://localhost:8000/auth/signup/",
-            user,
+            content,
             {
                 headers: {
-                    "Content-Type": "application/json",
-                },
+                    'Content-Type': 'multipart/form-data'
+                }
             },
             { withCredentials: true }
         );
@@ -34,7 +36,7 @@ export default function Signup() {
         localStorage.setItem("access_token", data.access);
         localStorage.setItem("refresh_token", data.refresh);
         axios.defaults.headers.common["Authorization"] = `Bearer ${data["access"]}`;
-        // window.location.href = '/';
+        window.location.href = '/';
     };
 
 
@@ -66,7 +68,6 @@ export default function Signup() {
                     />
                 </div>
                 <div className="form-group">
-
                     <input
                         type="password"
                         placeholder="Password"
@@ -75,11 +76,14 @@ export default function Signup() {
                     />
                 </div>
                 <div className="form-group">
-
+                    <label for="profile">Don't be blue. Click here to choose your own avatar.</label>
+                    <input id="profile" type="file" accept="image/*" class="file-hidden" onChange={(event) => setProfile(event.target.files[0])} />
+                </div>
+                <div className="form-group">
                     <button type="submit">Signup</button>
                 </div>
                 <div className="login">
-                    <a href="#">Login</a>
+                    <a href="/login">Login</a>
                 </div>
                 <div className="social-login">
                     {/* Implement social login buttons here */}

@@ -1,0 +1,134 @@
+/* Search Bar Styles */
+.search-bar {
+    background-color: #303335;
+    width: 90%;
+    border-radius: 4px;
+    padding: 0.5em;
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.search-bar:hover {
+    background-color: #2b2e30;
+}
+
+.search-bar input {
+    background-color: transparent;
+    border: none;
+    outline: none;
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    padding: 0 1em;
+}
+
+/* Filter Styles */
+.filters {
+    display: flex;
+    flex-wrap: wrap;
+    /* padding: 0.5em 0; */
+}
+
+.filter-item {
+    margin: 0.5em;
+    width: auto;
+    display: flex;
+    align-items: center;
+    transition: transform 0.2s ease-in-out;
+}
+
+.filter-item:hover {
+    transform: translateY(-2px);
+}
+
+.filter-item label {
+    margin-right: 0.5em;
+    color: #eee;
+}
+
+.filter-item select {
+    background-color: #303335;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    padding: 0.25em 0.5em;
+    transition: box-shadow 0.2s ease-in-out;
+}
+
+.filter-item select:focus {
+    box-shadow: 0 0 3px 2px #fcd938;
+}
+
+/* Movies Container Styles */
+.movies-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1em;
+}
+
+/* Movie Item Styles */
+.movie-item {
+    background-color: #2b2e30;
+    border-radius: 4px;
+    overflow: hidden;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.movie-item:hover {
+    background-color: #242729;
+}
+
+.movie-item a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.movie-item img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    transition: transform 0.2s ease-in-out;
+}
+
+.movie-item:hover img {
+    transform: scale(1.05);
+}
+
+/* Movie Info Styles */
+.movie-info {
+    padding: 0.5em;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.movie-item:hover .movie-info {
+    opacity: 0.8;
+}
+
+.movie-info h3 {
+    margin-bottom: 0.25em;
+    font-size: 1.25em;
+    font-weight: bold;
+}
+
+.movie-info div {
+    font-size: 0.85em;
+    margin-right: 0.5em;
+}
+
+
+.profile {
+    float: right;
+}
+
+.profile:hover {
+    transform: translateY(-2px);
+}
+
+.profile img {
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    overflow: auto;
+}
