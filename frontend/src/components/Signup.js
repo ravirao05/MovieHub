@@ -1,14 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from "axios";
+import { Link } from 'react-router-dom';
 import "./Signup.css";
 
 
 export default function Signup() {
+    useEffect(() => {
+        if (localStorage.getItem('access_token')) {
+            window.location.hash = '/'
+        }
+    }, []);
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
     const [profile, setProfile] = useState(null);
+    const [errors, setErrors] = useState({});
 
     const submit = async (e) => {
         e.preventDefault();
@@ -20,8 +27,8 @@ export default function Signup() {
         content.append('password', password);
         content.append('email', email);
         if (profile) content.append('profile', profile);
-        console.log(content)
-        const { data } = await axios.post(
+
+        const request = await axios.post(
             "http://localhost:8000/auth/signup/",
             content,
             {
@@ -31,17 +38,24 @@ export default function Signup() {
             },
             { withCredentials: true }
         );
+        if (request.data) {
+            localStorage.clear();
+            localStorage.setItem("access_token", request.data.access);
+            localStorage.setItem("refresh_token", request.data.refresh);
+            axios.defaults.headers.common["Authorization"] = `Bearer ${request.data["access"]}`;
+            window.location.hash = '/';
+        } else setErrors(request.response.data)
 
-        localStorage.clear();
-        localStorage.setItem("access_token", data.access);
-        localStorage.setItem("refresh_token", data.refresh);
-        axios.defaults.headers.common["Authorization"] = `Bearer ${data["access"]}`;
-        window.location.href = '/';
     };
 
 
     return (
         <div className="signup-page">
+            <div className='error'>
+                {Object.entries(errors).map(([key, message]) => (
+                    <p className="error-message">{`${key}: ${message}`}</p>
+                ))}
+            </div>
             <form className="signup-form" onSubmit={submit}>
                 <div className="form-group">
                     <input
@@ -83,7 +97,7 @@ export default function Signup() {
                     <button type="submit">Signup</button>
                 </div>
                 <div className="login">
-                    <a href="/login">Login</a>
+                    <Link to="/login">Login</Link>
                 </div>
                 <div className="social-login">
                     {/* Implement social login buttons here */}

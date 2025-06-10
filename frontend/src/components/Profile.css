@@ -10,28 +10,14 @@
   max-width: 800px;
 }
 
-.edit-profile {
-  font-family: inherit;
-  font-size: 0.9em;
-  font-weight: bold;
-  color: #fcd938;
-  text-decoration: none;
-  padding: 0.5em 1em;
-  border-radius: 4px;
-  border-color: #2b2e30;
-  background-color: #2b2e30;
-  transition: background-color 0.2s ease-in-out;
-  cursor: pointer;
-}
-
-.edit-profile:hover {
-  background-color: #242729;
-}
-
-.logout {
+.buttons {
   position: absolute;
-  padding: 5px;
-  right: 1em;
+  right: 0;
+  padding: 0.5em;
+}
+
+.buttons:hover {
+  background-color: #242729;
 }
 
 .profile-image-big {
@@ -86,6 +72,32 @@
   background-color: #242729;
 }
 
+.favourite-item {
+  position: relative;
+}
+
+.remove-favourite {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  padding: 5px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  opacity: 0.5;
+}
+
+.favourite-item:hover .remove-favourite {
+  opacity: 1;
+}
+
+.favourite-item.removed {
+  opacity: 0;
+  transform: scale(0.5);
+  transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out;
+}
+
+
 .favourite-item a {
   text-decoration: none;
   color: inherit;
@@ -102,4 +114,45 @@
 
 .favourite-item:hover {
   opacity: 0.8;
+}
+
+.profile-icon {
+  right: 0;
+  top: 0;
+  cursor: pointer;
+  position: absolute;
+  padding: 30px;
+}
+
+.profile-menu {
+  position: absolute;
+  right: 0;
+  width: 150px;
+  background-color: #303335;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  overflow: hidden;
+}
+
+.profile-menu li:hover {
+  background-color: #2b2e30;
+
+}
+
+.profile-menu ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.profile-menu li {
+  border-bottom: 1px solid #ddd;
+  padding: 5px;
+}
+
+.profile-icon img {
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  overflow: auto;
 }

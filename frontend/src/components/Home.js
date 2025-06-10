@@ -1,5 +1,6 @@
 import { useEffect, useCallback, useRef, useState } from "react";
 import axios from "axios";
+import { Link } from 'react-router-dom';
 import "./Home.css"
 
 function Home() {
@@ -133,19 +134,27 @@ function Home() {
 
     return (
         <div className="dashboard">
-            <div className="profile">
+            <div className="profile" onMouseEnter={() => setMenuOpen(true)} onMouseLeave={() => setMenuOpen(false)}>
                 {profilePicture ? (
-                    <img src={profilePicture} alt="Profile Image" onClick={() => setMenuOpen(!menuOpen)} />
+                    <>
+                        <img src={profilePicture} alt="Profile Image" />
+                        {menuOpen && (
+                            <div className="profile-menu">
+                                <ul>
+                                    <li><Link to="/profile">Account info</Link></li>
+                                    <li><Link to="/profile?edit">Edit account info</Link></li>
+                                    <li><Link to="/change_password">Change password</Link></li>
+                                    <li><Link to="/logout">Logout</Link></li>
+                                </ul>
+                            </div>
+                        )}
+                    </>
                 ) : (
-                    <a href="/login"><button className="profile">Login</button></a>
+                    <Link to="/login">
+                        <button className="profile">Login</button>
+                    </Link>
                 )}
-                {menuOpen && (
-                    <ul className="profile-menu">
-                        <li><a>Account info</a></li>
-                        <li><a>Account info</a></li>
-                        <li><a>Account info</a></li>
-                    </ul>
-                )}
+
             </div>
 
             <div className="search-bar">
@@ -166,7 +175,8 @@ function Home() {
                 <div className="filter-item">
                     <button onClick={changeOrder}>{order === '-' ? "DESC" : "ASC"}</button>
                 </div>
-                <p />
+            </div>
+            <div className="filters">
                 <div className="filter-item">
                     Filters:
                 </div>
@@ -223,7 +233,7 @@ function Home() {
             <div className="movies-container">
                 {movies.map((movie) => (
                     <div className="movie-item" key={movie.id}>
-                        <a href={'/movie/' + movie.id}>
+                        <Link to={'/movie/' + movie.id}>
                             <img src={movie.image.slice(0, -3) + 'QL112_UY421_CR12,0,285,421_.jpg'} alt={movie.name} />
                             <div className="movie-info">
                                 <h3>{movie.name}</h3>
@@ -231,7 +241,7 @@ function Home() {
                                 <div>Release Date: {movie.release_date}</div>
                                 <div>Content Rating: {movie.content_rating}</div>
                             </div>
-                        </a>
+                        </Link>
                     </div>
                 ))}
                 <div ref={loaderRef}></div>

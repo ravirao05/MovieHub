@@ -1,5 +1,6 @@
 import { useEffect, useCallback, useRef, useState } from "react";
 import axios from "axios";
+import { Link } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import "./Movie.css";
 
@@ -23,6 +24,7 @@ export default function Movie() {
         genre: ""
     });
     const [reviewData, setReviewData] = useState([]);
+    const [errors, setErrors] = useState({});
     const [review, setReview] = useState();
     const loaderRef = useRef(null);
 
@@ -58,28 +60,31 @@ export default function Movie() {
     }, []);
 
     const toogleFav = async () => {
-        const { data } = await axios.get('http://localhost:8000/api/favourites/', {
+        const request = await axios.get('http://localhost:8000/api/favourites/', {
             params: {
                 id: movieId
             }
         });
-        if (data) setIsFav(data.fav);
+        if (request.data) {
+            setIsFav(request.data.fav);
+            setErrors({});
+        } else setErrors(request.response.data);
     }
 
     const submitReview = async () => {
-        const { data } = await axios.post('http://localhost:8000/api/reviews/', {
+        const request = await axios.post('http://localhost:8000/api/reviews/', {
             movie: movieId,
             body: review,
             title: "sample",
             rating: "9" + "/10",
         });
-        if (data) {
+        if (request.data) {
             setReview('');
             setCurrentPage(1);
             setReviewData([]);
-        }
+            setErrors({});
+        } else setErrors(request.response.data);
     }
-    console.log(review)
     const fetchData = async () => {
         const { data } = await axios.get('http://localhost:8000/api/reviews/', {
             params: {
@@ -130,9 +135,9 @@ export default function Movie() {
 
 
                     <p class="summary">{movieData.description}</p>
-                    <a href={movieData.trailer} target="_blank" className="trailer" rel="noreferrer">
+                    <Link to={movieData.trailer} target="_blank" className="trailer" rel="noreferrer">
                         Watch Trailer
-                    </a>
+                    </Link>
                     <p>
                         <ul className="tabs">
                             Genre:&nbsp;
@@ -160,6 +165,11 @@ export default function Movie() {
                         </ul>
                     </p>
                 </div>
+            </div>
+            <div className='error'>
+                {Object.entries(errors).map(([key, message]) => (
+                    <p className="error-message">{`${key}: ${message}`}</p>
+                ))}
             </div>
             <div class="review-container">
                 <h2>Add Review</h2>

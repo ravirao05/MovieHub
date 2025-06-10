@@ -80,11 +80,6 @@
     background-color: #242729;
 }
 
-.movie-item a {
-    text-decoration: none;
-    color: inherit;
-}
-
 .movie-item img {
     width: 100%;
     height: auto;
@@ -120,10 +115,32 @@
 
 .profile {
     float: right;
+    cursor: pointer;
 }
 
-.profile:hover {
-    transform: translateY(-2px);
+.profile-menu {
+    position: absolute;
+    right: 0;
+    background-color: #303335;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+    overflow: hidden;
+}
+
+.profile-menu li:hover {
+    background-color: #2b2e30;
+
+}
+
+.profile-menu ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.profile-menu li {
+    border-bottom: 1px solid #ddd;
+    padding: 5px;
 }
 
 .profile img {

@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 import csv, time, json, sqlite3
 
-url = 'https://www.imdb.com/search/title/?groups=top_250'
+url = 'https://www.imdb.com/search/title/?title_type=feature&primary_language=hi'
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'}
 response = requests.get(url, headers=headers)
 # with open('movies.html') as response:
@@ -21,20 +21,19 @@ for movie in movies:
     for g in js['genre']:
         genre += g + ','
     platforms = "Amazon Prime"
-    sql_query = f"""INSERT INTO core_movie VALUES (
+    sql_query = f"""INSERT OR IGNORE INTO core_movie VALUES (
         \'{js['url'].split('/')[-2]}\',
         \'{js['name']}\',
         \'{js['image']}\',
         \'{js['description']}\',
-        \'{js['review']['name']}\',
-        \"{js['review']['reviewBody']}\",
         {js['aggregateRating']['ratingValue']},
+        'Amazon Prime',
         \'{js.get('datePublished', 'NaN')}\',
-        \'{js['contentRating']}\',
+        \'{js.get('contentRating')}\',
         \'{js['trailer']['embedUrl']}\',
         \'{js['duration']}\',
-        \'{js['keywords']}\',
-        'English',
+        \'{js.get('keywords')}\',
+        \'{js.get("inLanguage", "Hindi")}\',
         \'{genre}\'
     );"""
     try:

@@ -1,5 +1,6 @@
 import { useEffect, useCallback, useRef, useState } from "react";
 import axios from "axios";
+import { Link } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 
 export default function Movie() {
@@ -93,9 +94,9 @@ export default function Movie() {
 
 
                     <p class="summary">{movieData.description}</p>
-                    <a href={movieData.trailer} target="_blank" className="trailer" rel="noreferrer">
+                    <Link to={movieData.trailer} target="_blank" className="trailer" rel="noreferrer">
                         Watch Trailer
-                    </a>
+                    </Link>
                     <p>
                         <ul className="tabs">
                             Genre:&nbsp;

@@ -40,6 +40,11 @@ body {
   padding: 1em;
 }
 
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
 button {
   font-family: inherit;
   font-size: 0.9em;
@@ -53,6 +58,17 @@ button {
   transition: background-color 0.2s ease-in-out;
   cursor: pointer;
 }
+
+.error-message {
+  color: #e74c3c;
+  font-size: 0.8em;
+  margin-bottom: 5px;
+  padding: 5px 10px;
+  border-radius: 4px;
+  background-color: rgba(231, 76, 60, 0.1);
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
 
 .file-hidden {
   position: absolute !important;
