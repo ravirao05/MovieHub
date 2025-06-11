@@ -20,43 +20,43 @@ export default function Movie() {
         duration: '',
         tags: '',
         language: '',
-        platforms: '',
+        platform: '',
         genre: ""
     });
     const [reviewData, setReviewData] = useState([]);
     const [errors, setErrors] = useState({});
-    const [review, setReview] = useState();
+    const [reviewTitle, setReviewTitle] = useState('');
+    const [reviewRating, setReviewRating] = useState(null);
+    const [reviewBody, setReviewBody] = useState('');
     const loaderRef = useRef(null);
 
 
 
 
     useEffect(() => {
-        // getting filter arguments
-        setTimeout(() => {
-            (async () => {
-                const { data } = await axios.get('http://localhost:8000/api/movie/' + movieId + '/');
-                setMovieData(data);
-            })();
-        }, 2000);
+        // setTimeout(() => {
+        (async () => {
+            const { data } = await axios.get('http://localhost:8000/api/movie/' + movieId + '/');
+            setMovieData(data);
+        })();
+        // }, 2000);
     }, []);
 
 
     useEffect(() => {
-        // getting filter arguments
-        setTimeout(() => {
-            (async () => {
-                try {
-                    const { data } = await axios.get('http://localhost:8000/api/favourites/');
-                    if (data) {
-                        if (data.fav.includes(movieId)) setIsFav(true);
-                        else setIsFav(false)
-                    }
-                } catch (e) {
-                    console.log(e)
+        // setTimeout(() => {
+        (async () => {
+            try {
+                const { data } = await axios.get('http://localhost:8000/api/favourites/');
+                if (data) {
+                    if (data.fav.includes(movieId)) setIsFav(true);
+                    else setIsFav(false)
                 }
-            })();
-        }, 3000);
+            } catch (e) {
+                console.log(e)
+            }
+        })();
+        // }, 3000);
     }, []);
 
     const toogleFav = async () => {
@@ -72,14 +72,20 @@ export default function Movie() {
     }
 
     const submitReview = async () => {
+        if (reviewRating < 0 || reviewRating > 10) {
+            setErrors({ 'rating': 'rating value must be out of 10' });
+            return;
+        }
         const request = await axios.post('http://localhost:8000/api/reviews/', {
             movie: movieId,
-            body: review,
-            title: "sample",
-            rating: "9" + "/10",
+            body: reviewBody,
+            title: reviewTitle,
+            rating: reviewRating,
         });
         if (request.data) {
-            setReview('');
+            setReviewBody('');
+            setReviewRating(null);
+            setReviewTitle('');
             setCurrentPage(1);
             setReviewData([]);
             setErrors({});
@@ -153,7 +159,7 @@ export default function Movie() {
                         </ul>
                         <ul className="tabs">
                             Available on: &nbsp;
-                            {movieData.platforms.slice(0, -1).split(",").map((tag) => (
+                            {movieData.platform.slice(0, -1).split(",").map((tag) => (
                                 <li key={tag}> {tag}</li>
                             ))}
                         </ul>
@@ -172,10 +178,13 @@ export default function Movie() {
                 ))}
             </div>
             <div class="review-container">
-                <h2>Add Review</h2>
-                <textarea placeholder="Share your thoughts on this movie..." className="review-textbox" value={review} onChange={(e) => setReview(e.target.value)}></textarea>
-                <button className="submit-review" onClick={submitReview}>Submit Review</button>
-
+                <div className="add-review">
+                    <h2>Add Review</h2>
+                    <input type="text" placeholder="Enter title" className="review-title" value={reviewTitle} onChange={(e) => setReviewTitle(e.target.value)} />
+                    &nbsp;&nbsp;&nbsp;<label for="rating">Rate the movie out of 10:</label><input type="number" id="rating" className="review-rating" max="9" value={reviewRating} onChange={(e) => setReviewRating(e.target.value)} />
+                    <textarea placeholder="Share your thoughts on this movie..." className="review-body" rows="7" value={reviewBody} onChange={(e) => setReviewBody(e.target.value)}></textarea>
+                    <button className="submit-review" onClick={submitReview}>Submit Review</button>
+                </div>
                 <h2>Reviews</h2>
                 <ul className="reviews-list">
                     {reviewData.map((review) => (

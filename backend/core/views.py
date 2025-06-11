@@ -10,6 +10,10 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from authenticate.models import User
 from datetime import datetime
+from django.conf import settings
+from django.core.mail import send_mail
+
+
 
 
 class FilterView(APIView):
@@ -28,7 +32,9 @@ class FilterView(APIView):
                 for filter in element[:-1].split(','):
                     languages.append(filter)
             languages = list(set(languages))
-            return Response({'genres': genres, 'languages': languages}, status=status.HTTP_200_OK)
+            elements = Movie.objects.values_list('platform', flat=True).distinct()
+            platforms = ['Theatres', 'Amazon TV', 'Amazon Prime Video', 'Netflix', 'Apple TV', 'MAX', 'Peacock', 'Hulu', 'Vudu', 'Paramount']
+            return Response({'genres': genres, 'languages': languages, 'platforms': platforms}, status=status.HTTP_200_OK)
 
 class SearchView(ListAPIView):
     # permission_classes = (IsAuthenticated, )
@@ -41,8 +47,9 @@ class SearchView(ListAPIView):
         'genre': ['icontains'],
         'language': ['icontains'],
         'release_date': ['icontains'],
+        'platform': ['icontains']
     }
-    search_fields = ['name', 'language']
+    search_fields = ['name', 'language', 'platform', 'tags']
     ordering_fields = ['release_date', 'rating', 'name', 'duration']
     ordering = ['-release_date', '-rating',]
 
@@ -127,11 +134,16 @@ class ReviewView(ListCreateAPIView):
         request.data['date'] = datetime.now().strftime("%d %B %Y")
         return super().create(request, *args, **kwargs)
 
-class TestView(RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = ProfileSerializer
-    queryset = User.objects.all()
-    def get_object(self):
-        self.kwargs['pk'] = self.request.user.id
-        print(self.request.user.id)
-        return super().get_object()
+class TestView(APIView):
+    def get(self, request, *args, **kwargs):
+        try:
+            otp = 62345
+            subject = "email verification"
+            message = f"Your OTP for email verification is: {otp}"
+            from_email = settings.EMAIL_FROM
+            recipient_list = ['yomipij965@arensus.com', ]
+            send_mail(subject, message, from_email, recipient_list)
+            return Response({})
+        except Exception as e:
+            print(e)
+            return Response({})

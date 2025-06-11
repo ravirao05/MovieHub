@@ -5,10 +5,26 @@ import "./Profile.css"
 
 export default function Profile() {
     useEffect(() => {
-        if (localStorage.getItem('access_token') === null) {
-            window.location.hash = '/login'
+        if (localStorage.getItem("access_token") === null) {
+            window.location.hash = "/login";
+        } else {
+            (async () => {
+                const { data } = await axios.get("http://localhost:8000/api/profile/", {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+                if (data) {
+                    if (!data.is_email_verified) {
+                        window.location.hash = "/signup";
+                    }
+                } else {
+                    window.location.hash = "/login";
+                }
+            })();
         }
     }, []);
+
     const [menuOpen, setMenuOpen] = useState(false);
     const [profileData, setProfileData] = useState({
         favourite: [],
@@ -18,7 +34,7 @@ export default function Profile() {
     const [name, setName] = useState('');
     const [profile, setProfile] = useState(null);
     const [errors, setErrors] = useState({});
-    const [editMode, setEditMode] = useState(window.location.search.includes("edit"));
+    const [editMode, setEditMode] = useState(window.location.hash.includes("edit"));
     const [movies, setMovies] = useState([{ id: 1 }]);
 
 
@@ -34,9 +50,7 @@ export default function Profile() {
     };
 
     useEffect(() => {
-        setTimeout(() => {
-            fetchData();
-        }, 2000);
+        fetchData();
     }, []);
 
 
@@ -66,6 +80,7 @@ export default function Profile() {
             fetchData();
             setErrors({});
             setEditMode(false);
+            window.location.hash = "/profile";
         } else setErrors(request.response.data)
     };
 
@@ -81,9 +96,10 @@ export default function Profile() {
                 {menuOpen && (
                     <div className="profile-menu">
                         <ul>
-                            <li><Link to="/">Home</Link></li>
-                            <li><Link to="/change_password">Change password</Link></li>
-                            <li><Link to="/logout">Logout</Link></li>
+                            <Link to="/"><li>Home</li></Link>
+                            <Link to="/profile?edit"><li>Edit account info</li></Link>
+                            <Link to="/change_password"><li>Change password</li></Link>
+                            <Link to="/logout"><li>Logout</li></Link>
                         </ul>
                     </div>
                 )}

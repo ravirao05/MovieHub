@@ -1,5 +1,6 @@
 from .models import User
 from rest_framework import serializers
+from .helpers import send_otp
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -10,4 +11,10 @@ class UserSerializer(serializers.ModelSerializer):
         user = User(**validated_data)
         user.set_password(validated_data['password'])
         user.save()
+        send_otp(user)
         return user
+    
+class IsEmailVerified(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['is_email_verified']

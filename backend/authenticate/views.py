@@ -1,34 +1,22 @@
-from rest_framework.views import APIView 
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db.models import Q
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from .serializers import UserSerializer
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from django.core.mail import send_mail
 from .models import User
-from django.conf import settings
+from rest_framework.generics import RetrieveAPIView
 from django.contrib.auth import authenticate
 from rest_framework.permissions import IsAuthenticated
+from .helpers import send_otp
 
-class HomeAPIView(APIView):
-    permission_classes = (IsAuthenticated, )
 
-    def get(self, request):
-        if request.user:
-            content = {'message': 'Welcome to the JWT Authentification page using React Js and Django!'}
-            return Response(content, status=status.HTTP_200_OK)
-        
 class SignupAPIView(APIView):
-    def get(self, request):
-        return Response({'message': request.user.is_authenticated})
     def post(self, request):
         try:
             serializer = UserSerializer(data=request.data)
             if not serializer.is_valid():
-                print(serializer.errors)
-                return Response({'errors': serializer.errors}, status=status.HTTP_403_FORBIDDEN)
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             serializer.save()
             user = authenticate(username=request.data['username'], password = request.data['password'])
             if user:
@@ -46,29 +34,66 @@ class SignupAPIView(APIView):
             return Response({'message': 'something went wrong'}, status.HTTP_400_BAD_REQUEST)
 
 class OtpValidateView(APIView):
+    permission_classes = (IsAuthenticated, )
+
+    def get(self, request, *args, **kwargs):
+        username = kwargs.get('username')
+        # email_verification_token = 
+
     def post(self, request):
-        if not User.objects.filter(email = request.data.get('email')):
+        user = User.objects.get(email = request.user.email)
+        if not user:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        user = User.objects.get(email = request.data.get('email'))
-        if user.otp == request.data.get('OTP'):
+        if (user.otp == request.data.get('OTP') or user.email_verification_token == request.data.get('token')):
             user.is_email_verified = True
             user.otp = None
             user.email_verification_token = None
             user.save()
-            return Response({'message': 'OTP verified.'}, status.HTTP_200_OK)
-        return Response({'message': 'wrong OTP'},status=status.HTTP_400_BAD_REQUEST)
+            return Response(status.HTTP_200_OK)
+        return Response({'error': 'wrong OTP'}, status=status.HTTP_400_BAD_REQUEST)
+    def patch(self, request):
+        user = request.user
+        if send_otp(user):
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status.HTTP_400_BAD_REQUEST)
+        
+class TokenValidateView(APIView):
+    def post(self, request):
+        user = User.objects.get(username = request.data.get('username'))
+        if not user:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        if (user.email_verification_token == request.data.get('token')):
+            user.is_email_verified = True
+            user.otp = None
+            user.email_verification_token = None
+            user.save()
+            return Response(status.HTTP_200_OK)
+        return Response({'error': 'bad token'}, status=status.HTTP_400_BAD_REQUEST)
 
-@receiver(post_save, sender=User)
-def send_otp(sender, instance, created, **kwargs):
-    if created:
+
+class ChangePasswordView(APIView):
+    permission_classes = (IsAuthenticated, )
+    def post(self, request, *args, **kwargs):
+        if ('currentPassword' in request.data and 'newPassword' in request.data):
+            user = authenticate(username=request.user.username, password=request.data['currentPassword'])
+            if not user:
+                return Response({"Current Password": "wrong password"}, status=status.HTTP_400_BAD_REQUEST)
+            user.set_password(request.data['newPassword'])
+            user.save()
+            return Response(status=status.HTTP_200_OK)
+           
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+class LogoutView(APIView):
+    permission_classes = (IsAuthenticated,)
+    def post(self, request):
         try:
-            otp = 62345
-            subject = "email verification"
-            message = f"Your OTP for email verification is: {otp}"
-            from_email = settings.EMAIL_HOST_USER
-            recipient_list = [instance.email, ]
-            # send_mail(subject, message, from_email, recipient_list)
-            instance.otp = otp
-            instance.save()
+            refresh_token = request.data["refresh_token"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+
+            return Response(status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
-            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)

@@ -8,7 +8,7 @@ function Home() {
     const [isLoading, setIsLoading] = useState(false);
     const [movies, setMovies] = useState([]);
     const [query, setQuery] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState(2);
     const years = Array.from({ length: 100 }, (_, index) => 2024 - index);
     const [noMoreMovie, setNoMoreMovie] = useState(false);
     const [profilePicture, setProfilePicture] = useState('')
@@ -16,13 +16,15 @@ function Home() {
     const [sort, setSort] = useState('release_date')
     const [filterArgs, setFilterArgs] = useState({
         genres: [],
-        languages: []
+        languages: [],
+        platforms: [],
     });
     const [filters, setFilters] = useState({
         genre: '',
         rating: '',
         year: '',
-        language: ''
+        language: '',
+        platform: '',
     });
     const loaderRef = useRef(null);
 
@@ -45,6 +47,7 @@ function Home() {
                     'search': query,
                     'rating__gte': filters.rating,
                     'genre__icontains': filters.genre,
+                    'platform__icontains': filters.platform,
                     'language__icontains': filters.language,
                     'release_date__icontains': filters.year,
                     'ordering': order + sort,
@@ -72,6 +75,7 @@ function Home() {
                 'search': query,
                 'rating__gte': filters.rating,
                 'genre__icontains': filters.genre,
+                'platform__icontains': filters.platform,
                 'language__icontains': filters.language,
                 'release_date__icontains': filters.year,
                 'ordering': order + sort,
@@ -84,31 +88,29 @@ function Home() {
 
     useEffect(() => {
         if (query) {
-            setTimeout(() => search(), 700);
+            setTimeout(() => search(), 300);
         } else {
             search();
         }
     }, [filters, query, sort, order]);
 
     useEffect(() => {
-        setTimeout(() => {
-            (async () => {
-                const { data } = await axios.get('http://localhost:8000/api/profile/');
-                if (data) {
-                    setProfilePicture(data.profile);
-                }
-            })();
-        }, 3000);
+        // setTimeout(() => {
+        (async () => {
+            const { data } = await axios.get('http://localhost:8000/api/profile/');
+            if (data) {
+                setProfilePicture(data.profile);
+            }
+        })();
+        // }, 3000);
     }, []);
 
     useEffect(() => {
         // getting filter arguments
-        setTimeout(() => {
-            (async () => {
-                const { data } = await axios.get("http://localhost:8000/api/filters/");
-                setFilterArgs({ 'genres': data.genres, 'languages': data.languages });
-            })();
-        }, 3000);
+        (async () => {
+            const { data } = await axios.get("http://localhost:8000/api/filters/");
+            setFilterArgs({ 'genres': data.genres, 'languages': data.languages, 'platforms': data.platforms });
+        })();
     }, []);
 
     // check if user scrolled till end
@@ -141,10 +143,10 @@ function Home() {
                         {menuOpen && (
                             <div className="profile-menu">
                                 <ul>
-                                    <li><Link to="/profile">Account info</Link></li>
-                                    <li><Link to="/profile?edit">Edit account info</Link></li>
-                                    <li><Link to="/change_password">Change password</Link></li>
-                                    <li><Link to="/logout">Logout</Link></li>
+                                    <Link to="/profile"><li>My profile</li></Link>
+                                    <Link to="/profile?edit"><li>Edit account info</li></Link>
+                                    <Link to="/change_password"><li>Change password</li></Link>
+                                    <Link to="/logout"><li>Logout</li></Link>
                                 </ul>
                             </div>
                         )}
@@ -185,6 +187,15 @@ function Home() {
                     <select id="genre" name="genre" value={filters.genre} onChange={(event) => setFilters({ ...filters, genre: event.target.value })}>
                         <option value="">All</option>
                         {filterArgs['genres'].map((element) => (
+                            <option value={element}>{element}</option>
+                        ))}
+                    </select>
+                </div>
+                <div className="filter-item">
+                    <label htmlFor="platform">Genre:</label>
+                    <select id="platform" name="platform" value={filters.platform} onChange={(event) => setFilters({ ...filters, platform: event.target.value })}>
+                        <option value="">All</option>
+                        {filterArgs['platforms'].map((element) => (
                             <option value={element}>{element}</option>
                         ))}
                     </select>
@@ -232,7 +243,7 @@ function Home() {
             </div>
             <div className="movies-container">
                 {movies.map((movie) => (
-                    <div className="movie-item" key={movie.id}>
+                    <div className="movie-item">
                         <Link to={'/movie/' + movie.id}>
                             <img src={movie.image.slice(0, -3) + 'QL112_UY421_CR12,0,285,421_.jpg'} alt={movie.name} />
                             <div className="movie-info">

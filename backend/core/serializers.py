@@ -15,4 +15,5 @@ class ReviewSerializer(ModelSerializer):
 class ProfileSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'email', 'name', 'profile', 'favourite']
+        fields = ['username', 'email', 'name', 'profile', 'favourite', 'is_email_verified']
+        read_only_fields = ['username', 'is_email_verified']
