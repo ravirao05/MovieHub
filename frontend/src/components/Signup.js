@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
-import { Link, Navigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import "./Signup.css";
 
 
 export default function Signup() {
+    const navigate = useNavigate();
+    const googleClientId = process.env.REACT_APP_GOOGLE_OAUTH2_CLIENT_ID;
+    const channeliClientId = process.env.REACT_APP_CHANNELI_OAUTH_CLIENT_ID;
+    const googelCallbackUri = process.env.REACT_APP_BASE_BACKEND + "/auth/oauth2_google/callback/";
+    const channeliCallbackUri = process.env.REACT_APP_BASE_BACKEND + "/auth/oauth2_channeli/callback/";
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
@@ -19,13 +24,14 @@ export default function Signup() {
         if (localStorage.getItem("access_token")) {
             (async () => {
                 try {
-                    const { data } = await axios.get("http://localhost:8000/api/profile/", {
+                    const { data } = await axios.get(process.env.REACT_APP_BASE_BACKEND + "/api/profile/", {
                         headers: {
                             "Content-Type": "application/json",
                         },
                     });
+                    setEmail(data.email);
                     if (data.is_email_verified) {
-                        window.location.hash = "/";
+                        navigate("/");
                     } else {
                         setEmailVerifier(true);
                     }
@@ -48,7 +54,7 @@ export default function Signup() {
         if (profile) content.append('profile', profile);
 
         const request = await axios.post(
-            "http://localhost:8000/auth/signup/",
+            process.env.REACT_APP_BASE_BACKEND + "/auth/signup/",
             content,
             {
                 headers: {
@@ -70,23 +76,18 @@ export default function Signup() {
     const otpSubmit = async () => {
 
         const request = await axios.post(
-            "http://localhost:8000/auth/validate_otp/",
-            { OTP: otp },
-            {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            },
+            process.env.REACT_APP_BASE_BACKEND + "/auth/activate_account/",
+            { OTP: otp }
         );
         if (request.status === 200) {
-            setSuccessMessage('OTP verified successfully')
-            window.location.hash = "/";
+            setSuccessMessage('OTP verified successfully');
+            navigate("/");
         } else setErrors(request.response.data)
     };
 
     const resendOTP = async () => {
         const request = await axios.patch(
-            "http://localhost:8000/auth/validate_otp/");
+            process.env.REACT_APP_BASE_BACKEND + "/auth/activate_account/");
         if (request.status === 200) {
             setSuccessMessage('OTP resend successfully')
         } else setErrors(request.response.data)
@@ -146,12 +147,37 @@ export default function Signup() {
                         <Link to="/login">Login</Link>
                     </div>
                     <div className="social-login">
-                        {/* Implement social login buttons here */}
+                        <div className='google-login'>
+                            <div id="g_id_onload"
+                                data-client_id={googleClientId}
+                                data-context="signin"
+                                data-ux_mode="popup"
+                                data-login_uri={googelCallbackUri}
+                                data-auto_prompt="false">
+                            </div>
+
+                            <div class="g_id_signin"
+                                data-type="standard"
+                                data-shape="pill"
+                                data-theme="filled_black"
+                                data-text="signin_with"
+                                data-size="large"
+                                data-logo_alignment="left">
+                            </div>
+                        </div>
+
+                        <div className='channeli-login'>
+                            <a href={"http://channeli.in/oauth/authorise?client_id=" + channeliClientId + "&redirect_uri=" + channeliCallbackUri}>
+                                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACUAAAAkCAYAAAAOwvOmAAAACXBIWXMAABCcAAAQnAEmzTo0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAG7SURBVHgB7ZdNSwJRFIbfuSY2ljApJhmE0CYiMFpEkkRFHxBtjaBd9ROqbevoL1QQtAzamFKrCoJqFbiqVSSRi4pIzBLCzigEMpb3XsEZYh4QwTnCw51z3jmjYLtYhJVYUhQGC2JL8WJL8WJJqSbUic8FjAcAhwM4zwDpPOpGWqpXA9bDwFx35e/xe2DlCrh5gzRSty/UChxOGYV0ZruA0xlgwAtpxKUo/3eiZbHfCLiB3ZFybUOkwnQCY8HadX1UFwtBCmGpSDt/bY8GKYSlXAL/cDoghbBUOsdfeyc5gcJS8TTw8lm77vkDSD5ACmGpAk3U8hl9f/1dt5kCHiWDVCqnDui01iggM+/Ga690iquXwEYK0ij1bJ56Vk1TPIx2oJRJF090y0j4Ngt5aPNU7HWYE1uKl3+y5NFYDPoBN8cj5ISWPppvYaSWvMQkbZxq7TplC1JSdk/x0tTPcrjOFKpfVemtwONGo2HHMRVRjZ6u2bzxky/ADJi/hWF/wYuhoBNWodRTAQ9DctGHSKc1xH4aXVMZjkhs2AJiFdPnaS6f2ETIBTMxRIIutjffhoiJPVY1p/QeS5jYY99ezWAQS3quOQAAAABJRU5ErkJggg==" alt="Channeli Logo" class="sc-furwcr cLelLH" />
+                                Sign in with Channeli
+                            </a>
+                        </div>
                     </div>
                 </form>
                 :
                 <div className="signup-form">
                     <div className="form-group">
+                        Enter the OTP sent on {email}<p />
                         <input
                             type="number"
                             placeholder="OTP"

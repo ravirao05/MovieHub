@@ -1,26 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from "axios";
 import "./Login.css";
 
 
 export default function Login() {
+    const navigate = useNavigate();
     useEffect(() => {
         if (localStorage.getItem("access_token") === null) {
-            window.location.hash = "/login";
+            navigate("/login");
         } else {
             (async () => {
-                const { data } = await axios.get("http://localhost:8000/api/profile/", {
+                const { data } = await axios.get(process.env.REACT_APP_BASE_BACKEND + "/api/profile/", {
                     headers: {
                         "Content-Type": "application/json",
                     },
                 });
                 if (data) {
                     if (!data.is_email_verified) {
-                        window.location.hash = "/signup";
+                        navigate("/signup");
                     }
                 } else {
-                    window.location.hash = "/login";
+                    navigate("/login");
                 }
             })();
         }
@@ -42,7 +43,7 @@ export default function Login() {
         };
 
         const request = await axios.post(
-            "http://localhost:8000/auth/change_password/",
+            process.env.REACT_APP_BASE_BACKEND + "/auth/change_password/",
             user,
             {
                 headers: {

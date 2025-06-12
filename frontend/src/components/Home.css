@@ -3,7 +3,7 @@
     background-color: #303335;
     width: 90%;
     border-radius: 4px;
-    padding: 0.5em;
+    padding: 10px;
     display: flex;
     align-items: center;
     margin-top: 20px;
@@ -16,6 +16,7 @@
 
 .search-bar input {
     background-color: transparent;
+    width:100%;
     border: none;
     outline: none;
     color: inherit;
@@ -64,7 +65,7 @@
 /* Movies Container Styles */
 .movies-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(300px, 24%));
     gap: 1em;
 }
 

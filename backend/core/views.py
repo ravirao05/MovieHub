@@ -14,8 +14,6 @@ from django.conf import settings
 from django.core.mail import send_mail
 
 
-
-
 class FilterView(APIView):
     # permission_classes = (IsAuthenticated, )
 
@@ -53,6 +51,9 @@ class SearchView(ListAPIView):
     ordering_fields = ['release_date', 'rating', 'name', 'duration']
     ordering = ['-release_date', '-rating',]
 
+
+
+
 class MovieView(RetrieveAPIView):
     # permission_classes = (IsAuthenticated, )
 
@@ -65,6 +66,40 @@ class MovieView(RetrieveAPIView):
             return Movie.objects.get(pk=movie_id)
         except Movie.DoesNotExist:
             return None
+
+class RecomendationView(ListAPIView):
+    # permission_classes = [IsAuthenticated]
+    serializer_class = MovieSerializer
+    def get(self, request, *args, **kwargs):
+        if 'movie' in request.GET:
+            query = Movie.objects.get(pk = request.GET['movie'])
+            serializer = self.get_serializer(query)
+            tags = serializer.data['tags'].split(',')
+            q=Q(tags__icontains = tags[0])
+            for tag in tags[1:]:
+                q |= Q(tags__icontains = tag)
+            q &= ~Q(pk = request.GET['movie'])
+        else:
+            serializer = ProfileSerializer(request.user)
+            favourites = serializer.data['favourite']
+            tags = []
+            if len(favourites):
+                for favourite in favourites:
+                    query = Movie.objects.get(pk = favourite)
+                    serializer = MovieSerializer(query)
+                    tags += serializer.data['tags'].split(',')
+                tags = list(set(tags))
+                q=Q(tags__contains = tags[0])
+                for tag in tags[1:]:
+                    q |= Q(tags__icontains = tag)
+            else:
+                q = Q(rating__gte = 8)
+            self.queryset = Movie.objects.filter(q).order_by('-rating')
+            if (len(self.queryset) < 1):
+                self.queryset = Movie.objects.all()
+        self.queryset = Movie.objects.filter(q).order_by('-rating')
+        return super().get(request, *args, **kwargs)
+
 
 class ProfileView(RetrieveUpdateDestroyAPIView):
     permission_classes = (IsAuthenticated, )
@@ -108,6 +143,7 @@ class FavouritesView(APIView):
             return Response({'fav': fav}, status=status.HTTP_200_OK)
 
 class ReviewView(ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = ReviewSerializer
     filter_backends = [OrderingFilter]
     ordering = ['-id']
@@ -133,17 +169,3 @@ class ReviewView(ListCreateAPIView):
         request.data['user'] = request.user.pk
         request.data['date'] = datetime.now().strftime("%d %B %Y")
         return super().create(request, *args, **kwargs)
-
-class TestView(APIView):
-    def get(self, request, *args, **kwargs):
-        try:
-            otp = 62345
-            subject = "email verification"
-            message = f"Your OTP for email verification is: {otp}"
-            from_email = settings.EMAIL_FROM
-            recipient_list = ['yomipij965@arensus.com', ]
-            send_mail(subject, message, from_email, recipient_list)
-            return Response({})
-        except Exception as e:
-            print(e)
-            return Response({})

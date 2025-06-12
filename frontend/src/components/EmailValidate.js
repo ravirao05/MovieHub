@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from "axios";
 
 export default function EmailValidate() {
+    const navigate = useNavigate();
     const { token } = useParams();
     const { username } = useParams();
     const [errors, setErrors] = useState({});
@@ -10,7 +11,7 @@ export default function EmailValidate() {
     useEffect(() => {
         (async () => {
             const request = await axios.post(
-                "http://localhost:8000/auth/validate_token/",
+                process.env.REACT_APP_BASE_BACKEND + "/auth/activate_account/",
                 {
                     username: username,
                     token: token
@@ -19,7 +20,7 @@ export default function EmailValidate() {
 
             if (request.data) {
                 setErrors({});
-                window.location.hash = "/";
+                navigate("/");
             } else setErrors(request.response.data);
         })();
     }, []);

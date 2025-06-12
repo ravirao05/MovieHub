@@ -1,9 +1,31 @@
 import { useEffect, useCallback, useRef, useState } from "react";
 import axios from "axios";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import "./Home.css"
 
 function Home() {
+    const navigate = useNavigate();
+    const [isAuth, setIsAuth] = useState(true);
+    useEffect(() => {
+        if (localStorage.getItem("access_token") === null) {
+            setIsAuth(false)
+        } else {
+            (async () => {
+                const { data } = await axios.get(process.env.REACT_APP_BASE_BACKEND + "/api/profile/", {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+                if (data) {
+                    if (!data.is_email_verified) {
+                        navigate("/signup");
+                    }
+                } else {
+                    // navigate("/login");
+                }
+            })();
+        }
+    }, []);
     const [menuOpen, setMenuOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [movies, setMovies] = useState([]);
@@ -41,7 +63,7 @@ function Home() {
 
         setIsLoading(true);
         try {
-            const { data } = await axios.get('http://localhost:8000/api/', {
+            const { data } = await axios.get(process.env.REACT_APP_BASE_BACKEND + '/api/', {
                 'params': {
                     'page': currentPage,
                     'search': query,
@@ -70,7 +92,7 @@ function Home() {
 
     const search = async () => {
         setIsLoading(true);
-        const { data } = await axios.get('http://localhost:8000/api/', {
+        const { data } = await axios.get(process.env.REACT_APP_BASE_BACKEND + '/api/', {
             'params': {
                 'search': query,
                 'rating__gte': filters.rating,
@@ -82,7 +104,6 @@ function Home() {
             }
         });
         if (data) setMovies(data['results']);
-        console.log(movies)
         setIsLoading(false);
     };
 
@@ -97,7 +118,7 @@ function Home() {
     useEffect(() => {
         // setTimeout(() => {
         (async () => {
-            const { data } = await axios.get('http://localhost:8000/api/profile/');
+            const { data } = await axios.get(process.env.REACT_APP_BASE_BACKEND + '/api/profile/');
             if (data) {
                 setProfilePicture(data.profile);
             }
@@ -108,7 +129,7 @@ function Home() {
     useEffect(() => {
         // getting filter arguments
         (async () => {
-            const { data } = await axios.get("http://localhost:8000/api/filters/");
+            const { data } = await axios.get(process.env.REACT_APP_BASE_BACKEND + "/api/filters/");
             setFilterArgs({ 'genres': data.genres, 'languages': data.languages, 'platforms': data.platforms });
         })();
     }, []);
@@ -143,8 +164,7 @@ function Home() {
                         {menuOpen && (
                             <div className="profile-menu">
                                 <ul>
-                                    <Link to="/profile"><li>My profile</li></Link>
-                                    <Link to="/profile?edit"><li>Edit account info</li></Link>
+                                    <Link to="/profile"><li>Account Settings</li></Link>
                                     <Link to="/change_password"><li>Change password</li></Link>
                                     <Link to="/logout"><li>Logout</li></Link>
                                 </ul>
@@ -192,7 +212,7 @@ function Home() {
                     </select>
                 </div>
                 <div className="filter-item">
-                    <label htmlFor="platform">Genre:</label>
+                    <label htmlFor="platform">Platform:</label>
                     <select id="platform" name="platform" value={filters.platform} onChange={(event) => setFilters({ ...filters, platform: event.target.value })}>
                         <option value="">All</option>
                         {filterArgs['platforms'].map((element) => (
