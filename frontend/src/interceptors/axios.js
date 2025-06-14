@@ -10,7 +10,7 @@ axios.interceptors.response.use(
 
       // console.log(localStorage.getItem("refresh_token"));
       const response = await axios.post(
-        process.env.REACT_APP_BASE_BACKEND + "/auth/refresh/",
+        "http://localhost:8000/auth/refresh/",
         {
           refresh: localStorage.getItem("refresh_token"),
         },

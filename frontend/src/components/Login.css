@@ -1,4 +1,4 @@
-.login-page, .password-page {
+.login-page {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -8,7 +8,7 @@
     padding: 2em;
   }
   
-  .login-form, .password-form {
+  .login-form {
     width: 400px;
     background-color: #2b2e30;
     border-radius: 4px;

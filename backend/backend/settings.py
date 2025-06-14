@@ -13,10 +13,6 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import os
-from dotenv import load_dotenv
-
-load_dotenv()
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,20 +21,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = 'django-insecure-*_qt(@rx1^^*x#8^x!!t++&34e-yel#(hyyivt%f9cx32421h!'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-BACKEND_BASE_HOST = os.environ.get('BACKEND_BASE_HOST')
-BACKEND_BASE_URL = os.environ.get('BACKEND_BASE_URL')
-FRONTEND_BASE_URL = os.environ.get('FRONTEND_BASE_URL')
+ALLOWED_HOSTS = ['*']
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', BACKEND_BASE_HOST]
+CORS_ORIGIN_ALLOW_ALL = True
 
-CSRF_TRUSTED_ORIGINS = ['http://localhost', 'http://127.0.0.1', FRONTEND_BASE_URL]
-
-CORS_ALLOWED_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000', FRONTEND_BASE_URL]
+# CORS_ALLOWED_ORIGINS = ['http://localhost:3000']
 
 # Application definition
 
@@ -74,18 +66,14 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-      ],
-    'DEFAULT_RENDERER_CLASSES': [
-        'rest_framework.renderers.JSONRenderer',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 24,
+    'PAGE_SIZE': 12
 }
 
-
 SIMPLE_JWT = {
-     'ACCESS_TOKEN_LIFETIME': timedelta(days=2),
-     'REFRESH_TOKEN_LIFETIME': timedelta(days=14),
+     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=10),
+     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
      'ROTATE_REFRESH_TOKENS': True,
      'BLACKLIST_AFTER_ROTATION': True
 }
@@ -166,22 +154,17 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_URL = 'media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = BASE_DIR / "media"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = os.environ.get('EMAIL_HOST')
-EMAIL_USE_TLS = True
-EMAIL_PORT = os.environ.get('EMAIL_PORT')
-EMAIL_FROM = os.environ.get('EMAIL_FROM')
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
-GOOGLE_OAUTH2_CLIENT_ID = os.environ.get('GOOGLE_OAUTH2_CLIENT_ID')
-CHANNELI_OAUTH_CLIENT_ID = os.environ.get('CHANNELI_OAUTH_CLIENT_ID')
-CHANNELI_OAUTH_CLIENT_SECRET = os.environ.get('CHANNELI_OAUTH_CLIENT_SECRET')
-GOOGLE_OAUTH2_CLIENT_SECRET = os.environ.get('GOOGLE_OAUTH2_CLIENT_SECRET')
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'tmpuser7@proton.me'
+EMAIL_HOST_PASSWORD = '9hipw0rd'

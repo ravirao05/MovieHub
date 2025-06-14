@@ -1,36 +1,14 @@
 import { useEffect, useCallback, useRef, useState } from "react";
 import axios from "axios";
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import "./Home.css"
 
 function Home() {
-    const navigate = useNavigate();
-    const [isAuth, setIsAuth] = useState(true);
-    useEffect(() => {
-        if (localStorage.getItem("access_token") === null) {
-            setIsAuth(false)
-        } else {
-            (async () => {
-                const { data } = await axios.get(process.env.REACT_APP_BASE_BACKEND + "/api/profile/", {
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                });
-                if (data) {
-                    if (!data.is_email_verified) {
-                        navigate("/signup");
-                    }
-                } else {
-                    // navigate("/login");
-                }
-            })();
-        }
-    }, []);
     const [menuOpen, setMenuOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [movies, setMovies] = useState([]);
     const [query, setQuery] = useState('');
-    const [currentPage, setCurrentPage] = useState(2);
+    const [currentPage, setCurrentPage] = useState(1);
     const years = Array.from({ length: 100 }, (_, index) => 2024 - index);
     const [noMoreMovie, setNoMoreMovie] = useState(false);
     const [profilePicture, setProfilePicture] = useState('')
@@ -38,15 +16,13 @@ function Home() {
     const [sort, setSort] = useState('release_date')
     const [filterArgs, setFilterArgs] = useState({
         genres: [],
-        languages: [],
-        platforms: [],
+        languages: []
     });
     const [filters, setFilters] = useState({
         genre: '',
         rating: '',
         year: '',
-        language: '',
-        platform: '',
+        language: ''
     });
     const loaderRef = useRef(null);
 
@@ -63,13 +39,12 @@ function Home() {
 
         setIsLoading(true);
         try {
-            const { data } = await axios.get(process.env.REACT_APP_BASE_BACKEND + '/api/', {
+            const { data } = await axios.get('http://localhost:8000/api/', {
                 'params': {
                     'page': currentPage,
                     'search': query,
                     'rating__gte': filters.rating,
                     'genre__icontains': filters.genre,
-                    'platform__icontains': filters.platform,
                     'language__icontains': filters.language,
                     'release_date__icontains': filters.year,
                     'ordering': order + sort,
@@ -92,46 +67,48 @@ function Home() {
 
     const search = async () => {
         setIsLoading(true);
-        const { data } = await axios.get(process.env.REACT_APP_BASE_BACKEND + '/api/', {
+        const { data } = await axios.get('http://localhost:8000/api/', {
             'params': {
                 'search': query,
                 'rating__gte': filters.rating,
                 'genre__icontains': filters.genre,
-                'platform__icontains': filters.platform,
                 'language__icontains': filters.language,
                 'release_date__icontains': filters.year,
                 'ordering': order + sort,
             }
         });
         if (data) setMovies(data['results']);
+        console.log(movies)
         setIsLoading(false);
     };
 
     useEffect(() => {
         if (query) {
-            setTimeout(() => search(), 300);
+            setTimeout(() => search(), 700);
         } else {
             search();
         }
     }, [filters, query, sort, order]);
 
     useEffect(() => {
-        // setTimeout(() => {
-        (async () => {
-            const { data } = await axios.get(process.env.REACT_APP_BASE_BACKEND + '/api/profile/');
-            if (data) {
-                setProfilePicture(data.profile);
-            }
-        })();
-        // }, 3000);
+        setTimeout(() => {
+            (async () => {
+                const { data } = await axios.get('http://localhost:8000/api/profile/');
+                if (data) {
+                    setProfilePicture(data.profile);
+                }
+            })();
+        }, 3000);
     }, []);
 
     useEffect(() => {
         // getting filter arguments
-        (async () => {
-            const { data } = await axios.get(process.env.REACT_APP_BASE_BACKEND + "/api/filters/");
-            setFilterArgs({ 'genres': data.genres, 'languages': data.languages, 'platforms': data.platforms });
-        })();
+        setTimeout(() => {
+            (async () => {
+                const { data } = await axios.get("http://localhost:8000/api/filters/");
+                setFilterArgs({ 'genres': data.genres, 'languages': data.languages });
+            })();
+        }, 3000);
     }, []);
 
     // check if user scrolled till end
@@ -164,9 +141,10 @@ function Home() {
                         {menuOpen && (
                             <div className="profile-menu">
                                 <ul>
-                                    <Link to="/profile"><li>Account Settings</li></Link>
-                                    <Link to="/change_password"><li>Change password</li></Link>
-                                    <Link to="/logout"><li>Logout</li></Link>
+                                    <li><Link to="/profile">Account info</Link></li>
+                                    <li><Link to="/profile?edit">Edit account info</Link></li>
+                                    <li><Link to="/change_password">Change password</Link></li>
+                                    <li><Link to="/logout">Logout</Link></li>
                                 </ul>
                             </div>
                         )}
@@ -207,15 +185,6 @@ function Home() {
                     <select id="genre" name="genre" value={filters.genre} onChange={(event) => setFilters({ ...filters, genre: event.target.value })}>
                         <option value="">All</option>
                         {filterArgs['genres'].map((element) => (
-                            <option value={element}>{element}</option>
-                        ))}
-                    </select>
-                </div>
-                <div className="filter-item">
-                    <label htmlFor="platform">Platform:</label>
-                    <select id="platform" name="platform" value={filters.platform} onChange={(event) => setFilters({ ...filters, platform: event.target.value })}>
-                        <option value="">All</option>
-                        {filterArgs['platforms'].map((element) => (
                             <option value={element}>{element}</option>
                         ))}
                     </select>
@@ -263,7 +232,7 @@ function Home() {
             </div>
             <div className="movies-container">
                 {movies.map((movie) => (
-                    <div className="movie-item">
+                    <div className="movie-item" key={movie.id}>
                         <Link to={'/movie/' + movie.id}>
                             <img src={movie.image.slice(0, -3) + 'QL112_UY421_CR12,0,285,421_.jpg'} alt={movie.name} />
                             <div className="movie-info">

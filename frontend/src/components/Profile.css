@@ -3,32 +3,11 @@
   color: #fff;
   padding: 1em;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
   border-radius: 4px;
   margin: 1em auto;
   max-width: 800px;
-}
-
-.profile-image, .profile-info{
-  display:flex;
-  flex-direction: column;
-  padding:100px 50px 50px 100px;
-  align-content:center;
-
-}
-
-.profile-info input{
-  padding: 10px;
-  border-radius: 4px;
-  width:280px;
-  outline: none;
-
-}
-
-.save-profile{
-  text-align: right;
-  padding: 10px;
 }
 
 .buttons {
@@ -76,7 +55,7 @@
 
 .faourite-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(148px, 12%));
+  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
   gap: 1em;
   max-width: 700px;
   margin-top: 0;
@@ -176,15 +155,4 @@
   width: 50px;
   height: 50px;
   overflow: auto;
-}
-
-.recomendation-container {
-  background-color: #2b2e30;
-  border-radius: 4px;
-  padding: 1em;
-  margin: 1em 0;
-  color: inherit;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1em;
 }

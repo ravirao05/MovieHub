@@ -1,33 +1,10 @@
 import { useEffect, useCallback, useRef, useState } from "react";
 import axios from "axios";
 import { Link } from 'react-router-dom';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import "./Movie.css";
 
 export default function Movie() {
-    const navigate = useNavigate();
-    const [isAuth, setIsAuth] = useState(true);
-    useEffect(() => {
-        if (localStorage.getItem("access_token") === null) {
-            setIsAuth(false)
-        } else {
-            (async () => {
-                const { data } = await axios.get(process.env.REACT_APP_BASE_BACKEND + "/api/profile/", {
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                });
-                if (data) {
-                    if (!data.is_email_verified) {
-                        navigate("/signup");
-                    }
-                } else {
-                    navigate("/login");
-                }
-            })();
-        }
-    }, []);
-
     const [isLoading, setIsLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [isFav, setIsFav] = useState(false);
@@ -43,58 +20,47 @@ export default function Movie() {
         duration: '',
         tags: '',
         language: '',
-        platform: '',
+        platforms: '',
         genre: ""
     });
     const [reviewData, setReviewData] = useState([]);
     const [errors, setErrors] = useState({});
-    const [reviewTitle, setReviewTitle] = useState('');
-    const [reviewRating, setReviewRating] = useState(null);
-    const [reviewBody, setReviewBody] = useState('');
-    const [recomendations, setRecomendations] = useState([]);
+    const [review, setReview] = useState();
     const loaderRef = useRef(null);
 
 
 
 
     useEffect(() => {
-        (async () => {
-            const { data } = await axios.get(process.env.REACT_APP_BASE_BACKEND + '/api/movie/' + movieId + '/');
-            setMovieData(data);
-        })();
-    }, [movieId]);
+        // getting filter arguments
+        setTimeout(() => {
+            (async () => {
+                const { data } = await axios.get('http://localhost:8000/api/movie/' + movieId + '/');
+                setMovieData(data);
+            })();
+        }, 2000);
+    }, []);
 
 
     useEffect(() => {
-        (async () => {
-            try {
-                const { data } = await axios.get(process.env.REACT_APP_BASE_BACKEND + '/api/favourites/');
-                if (data) {
-                    if (data.fav.includes(movieId)) setIsFav(true);
-                    else setIsFav(false)
+        // getting filter arguments
+        setTimeout(() => {
+            (async () => {
+                try {
+                    const { data } = await axios.get('http://localhost:8000/api/favourites/');
+                    if (data) {
+                        if (data.fav.includes(movieId)) setIsFav(true);
+                        else setIsFav(false)
+                    }
+                } catch (e) {
+                    console.log(e)
                 }
-            } catch (e) {
-                console.log(e)
-            }
-        })();
-    }, [movieId]);
-
-    useEffect(() => {
-        (async () => {
-            const { data } = await axios.get(process.env.REACT_APP_BASE_BACKEND + '/api/recomendations/', {
-                params: {
-                    movie: movieId,
-                }
-            });
-            if (data) {
-                setRecomendations(data['results']);
-                console.log(data['results']);
-            }
-        })();
-    }, [movieId]);
+            })();
+        }, 3000);
+    }, []);
 
     const toogleFav = async () => {
-        const request = await axios.get(process.env.REACT_APP_BASE_BACKEND + '/api/favourites/', {
+        const request = await axios.get('http://localhost:8000/api/favourites/', {
             params: {
                 id: movieId
             }
@@ -106,27 +72,21 @@ export default function Movie() {
     }
 
     const submitReview = async () => {
-        if (reviewRating < 0 || reviewRating > 10) {
-            setErrors({ 'rating': 'rating value must be out of 10' });
-            return;
-        }
-        const request = await axios.post(process.env.REACT_APP_BASE_BACKEND + '/api/reviews/', {
+        const request = await axios.post('http://localhost:8000/api/reviews/', {
             movie: movieId,
-            body: reviewBody,
-            title: reviewTitle,
-            rating: reviewRating,
+            body: review,
+            title: "sample",
+            rating: "9" + "/10",
         });
         if (request.data) {
-            setReviewBody('');
-            setReviewRating(null);
-            setReviewTitle('');
+            setReview('');
             setCurrentPage(1);
             setReviewData([]);
             setErrors({});
         } else setErrors(request.response.data);
     }
     const fetchData = async () => {
-        const { data } = await axios.get(process.env.REACT_APP_BASE_BACKEND + '/api/reviews/', {
+        const { data } = await axios.get('http://localhost:8000/api/reviews/', {
             params: {
                 page: currentPage,
                 movie: movieId,
@@ -157,7 +117,7 @@ export default function Movie() {
                 observer.unobserve(loaderRef.current);
             }
         };
-    }, [fetchData, movieId]);
+    }, [fetchData]);
 
     return (
         <>
@@ -193,7 +153,7 @@ export default function Movie() {
                         </ul>
                         <ul className="tabs">
                             Available on: &nbsp;
-                            {movieData.platform.slice(0, -1).split(",").map((tag) => (
+                            {movieData.platforms.slice(0, -1).split(",").map((tag) => (
                                 <li key={tag}> {tag}</li>
                             ))}
                         </ul>
@@ -206,38 +166,16 @@ export default function Movie() {
                     </p>
                 </div>
             </div>
-            {recomendations.length > 0 && (
-                <><h2>You might also like...</h2>
-                    <div class="recomendation-container">
-                        {recomendations.map((movie) => (
-                            <div className="movie-item">
-                                <Link to={'/movie/' + movie.id}>
-                                    <img src={movie.image.slice(0, -3) + 'QL112_UY421_CR12,0,285,421_.jpg'} alt={movie.name} />
-                                    <div className="movie-info">
-                                        <h3>{movie.name}</h3>
-                                        <div className='rating'>Rating: {movie.rating}</div>
-                                        <div>Release Date: {movie.release_date}</div>
-                                        <div>Content Rating: {movie.content_rating}</div>
-                                    </div>
-                                </Link>
-                            </div>
-                        ))}
-                    </div></>
-            )}
             <div className='error'>
                 {Object.entries(errors).map(([key, message]) => (
                     <p className="error-message">{`${key}: ${message}`}</p>
                 ))}
             </div>
             <div class="review-container">
-                <div className="add-review">
-                    <h2>Add Review</h2>
-                    <input type="text" placeholder="Enter title" className="review-title" value={reviewTitle} onChange={(e) => setReviewTitle(e.target.value)} />
-                    &nbsp;&nbsp;&nbsp;<label for="rating">Rate the movie out of 10:</label><input type="number" id="rating" className="review-rating" max="9" value={reviewRating} onChange={(e) => setReviewRating(e.target.value)} />
-                    <textarea placeholder="Share your thoughts on this movie..." className="review-body" rows="7" value={reviewBody} onChange={(e) => setReviewBody(e.target.value)}></textarea>
-                    <button className="submit-review" onClick={submitReview}>Submit Review</button>
-                </div>
-                <hr />
+                <h2>Add Review</h2>
+                <textarea placeholder="Share your thoughts on this movie..." className="review-textbox" value={review} onChange={(e) => setReview(e.target.value)}></textarea>
+                <button className="submit-review" onClick={submitReview}>Submit Review</button>
+
                 <h2>Reviews</h2>
                 <ul className="reviews-list">
                     {reviewData.map((review) => (
